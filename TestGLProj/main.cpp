@@ -125,7 +125,7 @@ void display(void)
 	else {
 		view = glm::lookAt(glm::vec3(move - (glm::rotate(rotation, 0.f, 1.f, 0.f) * lookatdirection) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(move), glm::vec3(up));
 	}
-	headTrans = glm::translate(glm::vec3(move)) * glm::rotate(rotation, 0.f, 1.f, 0.f) * glm::translate(0.0f, -4.0f, 0.0f);
+	headTrans = glm::translate(glm::vec3(move)) * glm::rotate(rotation, 0.f, 1.f, 0.f) * glm::translate(-4.0f, -4.0f, 0.0f);
 	playerModel->render(view * headTrans/* glm::translate(-2.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
 	// sphere is a child of the cylinder
 	sphere->render(view * glm::translate(10.0f, -5.9f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
@@ -153,73 +153,101 @@ void reshape (int w, int h)
 }
 
 /*Called when a normal key is pressed*/
+glm::vec4 moveatdirection = glm::vec4(0, 0, -1, 0);
 void keyboard(unsigned char key, int x, int y)
 {
-	glm::vec4 lookatdir = glm::rotate(rotation, 0.f, 1.f, 0.f) * lookatdirection;
-	glm::vec4 camlookatdir = glm::rotate(camrotation, 0.f, 1.f, 0.f) * lookatdirection;
-
+	//testing camera
+	glm::vec4 moveatdir = glm::rotate(rotation, 0.f, 1.f, 0.f) * moveatdirection;
+	glm::vec4 x1 = glm::vec4(glm::normalize(glm::cross(glm::vec3(up), glm::vec3(moveatdir))), 0.f);
+	glm::vec4 lookatdir = glm::rotate(cRotation, 0.f, 1.f, 0.f) * lookatdirection;
+	glm::vec4 cx1 = glm::vec4(glm::normalize(glm::cross(glm::vec3(center), glm::vec3(lookatdir))), 0.0f);
 	switch (key) {
 	case 27: // this is an ascii value
 		exit(0);
 		break;
+
 	case 'w':
-		// move forward
-		move += lookatdir;
-		angle += .2;
+		move += moveatdir;
+		angle += .1;
 		break;
 	case 's':
-		// move back
-		move -= lookatdir;
-		angle -= .2;
+		move -= moveatdir;
+		angle -= .1;
 		break;
 	case 'a':
 		// turn left
-		rotation += 1.f;
+		rotation += 2;
 		break;
+
 	case 'd':
 		// turn right
-		rotation -= 1.f;
+		rotation -= 2;
 		break;
+
+	case 'c':
+		camToggle++;
+		break;
+
 	case 'f':
-		//cam forward
-		cammove += camlookatdir;
+		cMove += lookatdir;
 		break;
 	case 'v':
-		//cam back
-		cammove -= camlookatdir;
-		break;
-	case 'c':
-		//toggle camera mode
-		camToggle++;
+		cMove -= lookatdir;
 		break;
 	}
 }
 
-void camControls(int camKey, int x, int y) {
-	
-	glm::vec4 lookatdir = glm::rotate(camrotation, 0.f, 1.f, 0.f) * lookatdirection;
-	glm::vec4 vertlookatdir = glm::rotate(verticalrotation, 1.f, 0.f, 0.f) * lookatdirection;
-	
-	switch (camKey) {
-	case 27: // this is an ascii value
-		exit(0);
-		break;
-	case GLUT_KEY_UP:
-		// look up
-		verticalrotation += 0.1f;
-		break;
-	case GLUT_KEY_DOWN:
-		// look down
-		verticalrotation -= 0.1f;
-		break;
-	case GLUT_KEY_LEFT:
-		// look left
-		camrotation += 1.f;
-		break;
-	case GLUT_KEY_RIGHT:
-		// look right
-		camrotation -= 1.f;
-		break;
+int camUp = 14;
+int camDown = 14;
+
+int cameraCheck = 0;
+void specialKeyBoard(int Key, int x, int y) {
+	glm::vec4 lookatdir = glm::rotate(cRotation, 0.f, 1.f, 0.f) * lookatdirection;
+	glm::vec4 cx1 = glm::vec4(glm::normalize(glm::cross(glm::vec3(center), glm::vec3(lookatdir))), 0.0f);
+	glm::vec3 up(0, 1, 0);
+	if (cameraCheck % 2 == 1) {
+		printf("WARNING! Camera is in 1st person!");
+	}
+	else {
+		switch (Key) {
+		case GLUT_KEY_UP:
+			if (camUp < 45) {
+				//cMove += lookatdir + center;
+				//center += up;
+				vRotation += 1.f;
+				camUp++;
+				camDown--;
+			}
+			else {
+				printf("can't go up more\n");
+			}
+
+			break;
+		case GLUT_KEY_DOWN:
+			if (camDown < 45) {
+				//cMove -= lookatdir + center;
+				//center -= up;
+				vRotation -= 1.f;
+				camUp--;
+				camDown++;
+			}
+			else {
+				printf("can't go down more\n");
+			}
+			break;
+		case GLUT_KEY_LEFT:
+			//cMove += cx1;
+			//center += cx1;
+			cRotation += 1.f;
+			//center = center + cx1 * .5f;
+			break;
+		case GLUT_KEY_RIGHT:
+			//cMove -= cx1;
+			//center -= cx1;
+			cRotation -= 1.f;
+			//center = center - cx1 *-.5f;
+			break;
+		}
 	}
 }
 
@@ -237,7 +265,7 @@ int main(int argc, char** argv)
 	glutIdleFunc(idle); 
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc (keyboard);
-	glutSpecialFunc(camControls);
+	glutSpecialFunc(specialKeyBoard);
 	glEnable(GL_DEPTH_TEST);
 
 	
