@@ -72,7 +72,11 @@ float camera_z = 5.0f;
 
 const float wall_width = 0.2f;
 const float wall_height = 1.0f;
-
+float player_x = 0.0f;
+float player_y = 0.0f;
+float player_z = 0.0f;
+float prev_player_x = 0.0f;
+float prev_player_z = 0.0f;
 /* report GL errors, if any, to stderr */
 void checkError(const char *functionName)
 {
@@ -160,8 +164,8 @@ void display(void)
 	else {
 		view = glm::lookAt(glm::vec3(move - (glm::rotate(rotation, 0.f, 1.f, 0.f) * lookatdirection) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(move), glm::vec3(up));
 	}
-	headTrans = glm::translate(glm::vec3(move)) * glm::rotate(rotation, 0.f, 1.f, 0.f) * glm::translate(-4.0f, -4.0f, 0.0f);
-	playerModel->render( view * headTrans/* glm::translate(-2.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
+	headTrans = glm::translate(glm::vec3(move)) * glm::rotate(rotation, 0.f, 1.f, 0.f) * glm::translate(10.0f, 4.0f, 0.0f);
+	playerModel->render(view * headTrans/* glm::translate(-2.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
 	// sphere is a child of the cylinder
 	//sphere->render(view * glm::translate(10.0f, -5.9f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
 	//lamp->render(view * glm::translate(-10.0f, -5.0f, -10.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
@@ -175,28 +179,51 @@ void display(void)
 		for (int col = 0; col < maze_width; col++) {
 			
 			if (maze[row][col] == 't') {
+				float x1 = row;
+				float y1 = 0.0f;
+				float z1 = col;
+				float x2 = row + 1;
+				float y2 = 0.0f;
+				float z2 = col;
+				float x3 = row + 1;
+				float y3 = 0.0f;
+				float z3 = col + 1;
+				float x4 = row;
+				float y4 = 0.0f;
+				float z4 = col + 1;
+				if (player_x > x1 && player_x < x2 &&
+					player_z > z1 && player_z < z4) {
+					// There is a collision, stop the player's movement
+					player_x = prev_player_x;
+					player_z = prev_player_z;
+					prev_player_x = player_x;
+					prev_player_z = player_z;
+					playerModel->render(view * headTrans * glm::translate(player_x, player_y, player_z)/* glm::translate(-2.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
+
+				}
+					glPushMatrix();
+					glTranslatef(maze_width, 0, maze_height);
+					cylinder->render(view * glm::translate(10.0f, 0.0f, 15.0f) * glm::translate(-(float)col * 10, 0.0f, -(float)row * 10) * glm::scale(5.0f, 5.0f, 5.0f), projection);
+
+					glPopMatrix();
+				}
 			
-				glPushMatrix();
-				glTranslatef(maze_width, 0, maze_height);
-				cylinder->render(view * glm::translate(10.0f,0.0f,5.0f)*glm::translate(-(float)col * 10, 0.0f, -(float)row * 10) * glm::scale(5.0f, 5.0f, 5.0f), projection);
-			
-				glPopMatrix();
-			}
 			if (maze[row][col] == 'x') {
 				glPushMatrix();
 				glTranslatef(maze_width, 0, maze_height);
-				playerModel->render(view * glm::translate(5.0f, 0.0f, 5.0f) * glm::translate(-(float)col*10, -5.0f, -(float)row*10), projection);
+				playerModel->render(view * glm::translate(13.0f, 0.0f, 15.0f) * glm::translate(-(float)col*10, -5.0f, -(float)row*10)*glm::rotate(180.0f, 0.0f, 1.0f, 0.0f), projection);
 				glPopMatrix();
 			}
 			if (maze[row][col] == 'g') {
 				glPushMatrix();
 				glTranslatef(maze_width, 0, maze_height);
-				guns->render(view  *glm::translate(5.0f, 2.0f, 5.0f) * glm::translate(-(float)col * 10, -5.0f, -(float)row * 10) * glm::rotate(delta, 0.0f, 1.0f, 0.0f), projection);
+				guns->render(view  *glm::translate(10.0f, 2.0f, 15.0f) * glm::translate(-(float)col * 10, -5.0f, -(float)row * 10) * glm::rotate(delta, 0.0f, 1.0f, 0.0f), projection);
 				glPopMatrix();
 			}
 
 			
 		}
+
 	}
 	glutSwapBuffers(); // Swap the buffers.
 	checkError("display");
