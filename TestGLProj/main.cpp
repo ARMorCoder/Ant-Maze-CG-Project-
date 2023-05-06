@@ -161,7 +161,7 @@ void display(void)
 		view = glm::lookAt(glm::vec3(move - (glm::rotate(rotation, 0.f, 1.f, 0.f) * lookatdirection) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(move), glm::vec3(up));
 	}
 	headTrans = glm::translate(glm::vec3(move)) * glm::rotate(rotation, 0.f, 1.f, 0.f) * glm::translate(-4.0f, -4.0f, 0.0f);
-	playerModel->render(glm::rotate(1.0f, 1.0f, 1.0f, 1.0f) * view * headTrans/* glm::translate(-2.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
+	playerModel->render( view * headTrans/* glm::translate(-2.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
 	// sphere is a child of the cylinder
 	//sphere->render(view * glm::translate(10.0f, -5.9f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
 	//lamp->render(view * glm::translate(-10.0f, -5.0f, -10.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
@@ -178,20 +178,20 @@ void display(void)
 			
 				glPushMatrix();
 				glTranslatef(maze_width, 0, maze_height);
-				cylinder->render(view * glm::translate(-10.0f,0.0f,15.0f)*glm::translate((float)col * 10, 0.0f, (float)row * 10) * glm::scale(5.0f, 5.0f, 5.0f), projection);
+				cylinder->render(view * glm::translate(10.0f,0.0f,5.0f)*glm::translate(-(float)col * 10, 0.0f, -(float)row * 10) * glm::scale(5.0f, 5.0f, 5.0f), projection);
 			
 				glPopMatrix();
 			}
 			if (maze[row][col] == 'x') {
 				glPushMatrix();
 				glTranslatef(maze_width, 0, maze_height);
-				playerModel->render(view * glm::translate(-13.0f, 0.0f, 15.0f) * glm::translate((float)col*10, -5.0f, (float)row*10), projection);
+				playerModel->render(view * glm::translate(5.0f, 0.0f, 5.0f) * glm::translate(-(float)col*10, -5.0f, -(float)row*10), projection);
 				glPopMatrix();
 			}
 			if (maze[row][col] == 'g') {
 				glPushMatrix();
 				glTranslatef(maze_width, 0, maze_height);
-				guns->render(view  *glm::translate(-13.0f, 2.0f, 15.0f) * glm::translate((float)col * 10, -5.0f, (float)row * 10) * glm::rotate(delta, 0.0f, 1.0f, 0.0f), projection);
+				guns->render(view  *glm::translate(5.0f, 2.0f, 5.0f) * glm::translate(-(float)col * 10, -5.0f, -(float)row * 10) * glm::rotate(delta, 0.0f, 1.0f, 0.0f), projection);
 				glPopMatrix();
 			}
 
