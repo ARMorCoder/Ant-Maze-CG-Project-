@@ -19,22 +19,10 @@ glm::vec4 move(0.0f, 0.0f, 15.0f, 1.0f);
 glm::vec4 cammove(0.0f, 0.0f, 15.0f, 1.0f);
 glm::vec3 center(-14.0f, 0.0f, 0.0f);
 Shader shader; // loads our vertex and fragment shaders
-Model* shelf;
-Model* tv;
-Model* smalltable;
-Model* couch;
 Model* cylinder;
-Model* theHead;
-Model* theBody;
-Model* theLeftArm;
-Model* theRightArm;
-Model* theLeftLeg;
-Model* theRightLeg;//a cylinder 
 Model* plane; //a plane
 Model* sphere;
-Model* room;
 Model* playerModel;
-Model* lamp;//a sphere
 Model* wall;
 Model* mazes;
 Model* guns;
@@ -42,33 +30,16 @@ glm::mat4 projection; // projection matrix
 glm::mat4 view;
 glm::mat4 headTrans;
 glm::mat4 camView;// where the camera is looking
-glm::mat4 rightArmR; // where the model (i.e., the myModel) is located wrt the camera
-glm::mat4 leftArmR;
-glm::mat4 rightLegR;
-glm::mat4 leftLegR;
-glm::mat4 head;
-glm::mat4 body;
-glm::mat4 lArm;
-glm::mat4 rArm;
-glm::mat4 lLeg;
-glm::mat4 rLeg;
 glm::mat4 walls;
 glm::mat4 gun;
 
 glm::vec4 lookatdirection = glm::vec4(0, 0, -1, 0);
 glm::vec4 camdirection = glm::vec4(0, 0, -1, 0);
 glm::vec4 up = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
-float fpscameradistance = 0.9;
-float fpscameraheight = 0.0;
-float freedistance = 10;
-float freeheight = 0;
 float angle = 0;
 int camToggle;
 const int maze_width = 50;
 const int maze_height = 50;
-float camera_x = 0.0f;
-float camera_y = 0.0f;
-float camera_z = 5.0f;
 
 const float wall_width = 0.2f;
 const float wall_height = 1.0f;
@@ -121,8 +92,6 @@ void init(void)
 
 
 	// Load identity matrix into model matrix (no initial translation or rotation)
-
-
 	initShader();
 	initRendering();
 }
@@ -140,7 +109,7 @@ void dumpInfo(void)
 float rotation = 0.0f;
 float camrotation = 0.0f;
 float verticalrotation = 0.0f;
-glm::vec4 cMove(0.0f, 0.0f, 15.0f, 1.0f);
+//glm::vec4 cMove(0.0f, 0.0f, 15.0f, 1.0f);
 float vRotation = 0.0f;
 float cRotation = 0.0f;
 float cameradistance = 10;
@@ -167,13 +136,6 @@ void display(void)
 	}
 	headTrans = glm::translate(glm::vec3(move)) * glm::rotate(rotation, 0.f, 1.f, 0.f) * glm::translate(-4.0f, -4.0f, 0.0f);
 	playerModel->render(view * headTrans/* glm::translate(-2.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
-	// sphere is a child of the cylinder
-	//sphere->render(view * glm::translate(10.0f, -5.9f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
-	//lamp->render(view * glm::translate(-10.0f, -5.0f, -10.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
-	//shelf->render(view * glm::translate(15.0f, -9.0f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
-	//smalltable->render(view * glm::translate(-15.0f, -10.0f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
-	//couch->render(view * glm::translate(-15.0f, -9.0f, -8.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
-	//tv->render(view * glm::translate(-15.0f, -6.0f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
 	plane->render(view * glm::translate(0.0f, -5.0f, 0.0f) * glm::scale(400.0f, 1.0f, 400.0f), projection);
 	guns->render(view * headTrans * glm::translate(3.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
 	for (int row = 0; row < maze_height; row++) {
@@ -256,7 +218,6 @@ void keyboard(unsigned char key, int x, int y)
 	case 27: // this is an ascii value
 		exit(0);
 		break;
-
 	case 'w':
 		move += moveatdir;
 		angle += .1;
@@ -278,13 +239,13 @@ void keyboard(unsigned char key, int x, int y)
 	case 'c':
 		camToggle++;
 		break;
-
-	case 'f':
-		cMove += lookatdir;
-		break;
-	case 'v':
-		cMove -= lookatdir;
-		break;
+	/*case 'f':
+	//	cMove += lookatdir;
+	//	break;
+	//case 'v':
+	//	cMove -= lookatdir;
+	//	break;*/
+		
 	}
 }
 
@@ -301,31 +262,30 @@ void specialKeyBoard(int Key, int x, int y) {
 	}
 	else {
 		switch (Key) {
-		case GLUT_KEY_UP:
-			if (camUp < 45) {
-				//cMove += lookatdir + center;
-				//center += up;
-				vRotation += 1.f;
-				camUp++;
-				camDown--;
-			}
-			else {
-				printf("can't go up more\n");
-			}
-
-			break;
-		case GLUT_KEY_DOWN:
-			if (camDown < 45) {
-				//cMove -= lookatdir + center;
-				//center -= up;
-				vRotation -= 1.f;
-				camUp--;
-				camDown++;
-			}
-			else {
-				printf("can't go down more\n");
-			}
-			break;
+		/*case GLUT_KEY_UP:
+		//	if (camUp < 45) {
+		//		//cMove += lookatdir + center;
+		//		//center += up;
+		//		vRotation += 1.f;
+		//		camUp++;
+		//		camDown--;
+		//	}
+		//	else {
+		//		printf("can't go up more\n");
+		//	}
+		//	break;
+		//case GLUT_KEY_DOWN:
+		//	if (camDown < 45) {
+		//		//cMove -= lookatdir + center;
+		//		//center -= up;
+		//		vRotation -= 1.f;
+		//		camUp--;
+		//		camDown++;
+		//	}
+		//	else {
+		//		printf("can't go down more\n");
+		//	}
+		//	break;*/
 		case GLUT_KEY_LEFT:
 			//cMove += cx1;
 			//center += cx1;
@@ -363,20 +323,9 @@ int main(int argc, char** argv)
 
 
 	cylinder = new Model(&shader, "models/cylinder.obj");
-	theHead = new Model(&shader, "models/cylinder.obj");
-	theBody = new Model(&shader, "models/cylinder.obj");
-	theRightArm = new Model(&shader, "models/cylinder.obj");
-	theLeftArm = new Model(&shader, "models/cylinder.obj");
-	theRightLeg = new Model(&shader, "models/cylinder.obj");
-	theLeftLeg = new Model(&shader, "models/cylinder.obj");
 	plane = new Model(&shader, "models/plane.obj");
 	sphere = new Model(&shader, "models/dodge-challenger_model.obj", "models/"); // you must specify the material path for this to load
 	playerModel = new Model(&shader, "models/player_model.obj", "models/");
-	lamp = new Model(&shader, "models/lamp.obj", "models/");
-	shelf = new Model(&shader, "models/shelf.obj", "models/");
-	smalltable = new Model(&shader, "models/table.obj", "models/");
-	tv = new Model(&shader, "models/tv.obj", "models/");
-	couch = new Model(&shader, "models/couch.obj", "models/");
 	wall = new Model(&shader, "models/wall.obj", "models/");
 	mazes = new Model(&shader, "models/AntFarm.obj", "models/");
 	guns = new Model(&shader, "models/rile.obj", "models/");
