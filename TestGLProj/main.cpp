@@ -17,7 +17,7 @@
 //using namespace glm;
 glm::vec4 move(0.0f, 0.0f, 15.0f, 1.0f);
 glm::vec4 cammove(0.0f, 0.0f, 15.0f, 1.0f);
-glm::vec3 center(0.0f, 0.0f, 0.0f);
+glm::vec3 center(-14.0f, 0.0f, 0.0f);
 Shader shader; // loads our vertex and fragment shaders
 Model* shelf;
 Model* tv;
@@ -35,6 +35,9 @@ Model *sphere;
 Model *room;
 Model* playerModel;
 Model *lamp;//a sphere
+Model* wall;
+Model* mazes;
+Model* guns;
 glm::mat4 projection; // projection matrix
 glm::mat4 view;
 glm::mat4 headTrans;
@@ -49,6 +52,9 @@ glm::mat4 lArm;
 glm::mat4 rArm;
 glm::mat4 lLeg;
 glm::mat4 rLeg;
+glm::mat4 walls;
+glm::mat4 gun;
+
 glm::vec4 lookatdirection = glm::vec4(0, 0, -1, 0);
 glm::vec4 camdirection = glm::vec4(0, 0, -1, 0);
 glm::vec4 up = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
@@ -58,6 +64,14 @@ float freedistance = 10;
 float freeheight = 0;
 float angle = 0;
 int camToggle;
+const int maze_width = 50;
+const int maze_height = 50;
+float camera_x = 0.0f;
+float camera_y = 0.0f;
+float camera_z = 5.0f;
+
+const float wall_width = 0.2f;
+const float wall_height = 1.0f;
 
 /* report GL errors, if any, to stderr */
 void checkError(const char *functionName)
@@ -67,6 +81,19 @@ void checkError(const char *functionName)
 		std::cerr << "GL error " << error << " detected in " << functionName << std::endl;
 	}
 }
+char maze[maze_height][maze_width] = {
+	{'t', 'g', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't'},
+	{'t', 'f', 't', 'f', 'f', 'f', 't', 'f', 'f', 'f' , 'f', 'f', 't', 'f', 'f', 'f', 't', 'f', 'f', 't','t', 'f', 't', 'f', 'f', 'f', 't', 'f', 'f', 't'},
+	{'t', 'x', 't', 'f', 't', 'f','f', 'g',  'f', 't', 'f','t', 'f', 'x','t', 'f', 'f', 'f', 't', 'f', 'f', 't','t', 'f', 'x','t', 'f', 'f', 'f', 't', 'f', 'f', 't'},
+	{'t', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'x','g', 'f','f', 't', 'f', 'f', 'x','f', 't', 'f', 'f', 'x','t', 'f', 't', 'f', 'f', 'f', 't', 'f', 'f', 't'},
+	{'t', 't', 't', 'f', 't', 'f', 't', 'f', 't', 't','f', 't', 'f', 'f', 'f', 't', 'g', 'f', 't','t', 'f', 't', 'x', 'f', 'f', 't', 'f', 'f', 't'},
+	{'t', 'f', 't', 'f', 't', 'f', 'x', 'f', 'f', 'x','g', 't','f', 't', 'f', 'f', 'f', 'x','t', 'g', 'f', 't','t', 'f', 't', 'f', 'f', 'f', 't', 'f', 'f', 't'},
+	{'t', 'f', 't', 'f', 't', 't', 't', 't', 't', 't','f', 't', 'f', 'g', 'f', 't', 'f', 'f', 't','t', 'f', 'g', 'f', 'f', 'g', 't', 'f', 'f', 't'},
+	{'t', 'g', 'x', 'f', 'f', 'x', 'f', 'f', 'f', 't', 't','g', 't', 'x','f', 'f', 'f', 'x', 'f', 'f', 't','t', 'f', 'x','t', 'f', 'f', 'x','f', 't', 'f', 'f', 't'},
+	{'t', 'f', 't', 't', 't', 't', 't', 't', 'f', 'f','f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'x','t','t', 'f', 't', 'f', 'f', 'f', 't', 'f', 'f', 't'},
+	{'t', 't', 't', 't', 't', 't', 't', 't', 't', 't','t', 't', 't', 't', 't', 't', 'f', 't', 't','t', 't', 't', 't', 't', 't', 't', 't', 't', 't'},
+};
+
 
 void initShader(void)
 {
@@ -79,7 +106,7 @@ void initShader(void)
 
 void initRendering(void)
 {
-	glClearColor (0.117f, 0.565f, 1.0f, 0.0f); // Dodger Blue
+	glClearColor (0.5f, 0.35f, 0.05f, 0.0f); // Dodger Blue
 	checkError ("initRendering");
 }
 
@@ -114,9 +141,17 @@ float vRotation = 0.0f;
 float cRotation = 0.0f;
 float cameradistance = 10;
 /*This gets called when the OpenGL is asked to display. This is where all the main rendering calls go*/
+void draw_wall(float x, float y, float z) {
+	glPushMatrix();
+	glTranslatef(x, y, z);
+	glScalef(wall_width, wall_height, wall_width);
+	glutSolidCube(1.0f);
+	glPopMatrix();
+}
+float delta = 0;
 void display(void)
 {
-
+	delta += .4;
 	//glm::rot
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (camToggle % 2 == 0) {
@@ -126,15 +161,43 @@ void display(void)
 		view = glm::lookAt(glm::vec3(move - (glm::rotate(rotation, 0.f, 1.f, 0.f) * lookatdirection) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(move), glm::vec3(up));
 	}
 	headTrans = glm::translate(glm::vec3(move)) * glm::rotate(rotation, 0.f, 1.f, 0.f) * glm::translate(-4.0f, -4.0f, 0.0f);
-	playerModel->render(view * headTrans/* glm::translate(-2.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
+	playerModel->render(glm::rotate(1.0f, 1.0f, 1.0f, 1.0f) * view * headTrans/* glm::translate(-2.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
 	// sphere is a child of the cylinder
-	sphere->render(view * glm::translate(10.0f, -5.9f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
-	lamp->render(view * glm::translate(-10.0f, -5.0f, -10.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
-	shelf->render(view * glm::translate(15.0f, -9.0f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
-	smalltable->render(view * glm::translate(-15.0f, -10.0f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
-	couch->render(view * glm::translate(-15.0f, -9.0f, -8.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
-	tv->render(view * glm::translate(-15.0f, -6.0f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
+	//sphere->render(view * glm::translate(10.0f, -5.9f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
+	//lamp->render(view * glm::translate(-10.0f, -5.0f, -10.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
+	//shelf->render(view * glm::translate(15.0f, -9.0f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
+	//smalltable->render(view * glm::translate(-15.0f, -10.0f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
+	//couch->render(view * glm::translate(-15.0f, -9.0f, -8.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
+	//tv->render(view * glm::translate(-15.0f, -6.0f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
 	plane->render(view * glm::translate(0.0f, -5.0f, 0.0f) * glm::scale(400.0f, 1.0f, 400.0f), projection);
+	guns->render(view * headTrans* glm::translate(3.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
+	for (int row = 0; row < maze_height; row++) {
+		for (int col = 0; col < maze_width; col++) {
+			
+			if (maze[row][col] == 't') {
+			
+				glPushMatrix();
+				glTranslatef(maze_width, 0, maze_height);
+				cylinder->render(view * glm::translate(-10.0f,0.0f,15.0f)*glm::translate((float)col * 10, 0.0f, (float)row * 10) * glm::scale(5.0f, 5.0f, 5.0f), projection);
+			
+				glPopMatrix();
+			}
+			if (maze[row][col] == 'x') {
+				glPushMatrix();
+				glTranslatef(maze_width, 0, maze_height);
+				playerModel->render(view * glm::translate(-13.0f, 0.0f, 15.0f) * glm::translate((float)col*10, -5.0f, (float)row*10), projection);
+				glPopMatrix();
+			}
+			if (maze[row][col] == 'g') {
+				glPushMatrix();
+				glTranslatef(maze_width, 0, maze_height);
+				guns->render(view  *glm::translate(-13.0f, 2.0f, 15.0f) * glm::translate((float)col * 10, -5.0f, (float)row * 10) * glm::rotate(delta, 0.0f, 1.0f, 0.0f), projection);
+				glPopMatrix();
+			}
+
+			
+		}
+	}
 	glutSwapBuffers(); // Swap the buffers.
 	checkError("display");
 }
@@ -261,6 +324,8 @@ int main(int argc, char** argv)
 	glewInit();
 	dumpInfo ();
 	init ();
+
+
 	glutDisplayFunc(display); 
 	glutIdleFunc(idle); 
 	glutReshapeFunc(reshape);
@@ -284,8 +349,9 @@ int main(int argc, char** argv)
 	smalltable = new Model(&shader, "models/table.obj", "models/");
 	tv = new Model(&shader, "models/tv.obj", "models/");
 	couch = new Model(&shader, "models/couch.obj", "models/");
-
-
+	wall = new Model(&shader, "models/wall.obj", "models/");
+	mazes = new Model(&shader, "models/AntFarm.obj", "models/");
+	guns = new Model(&shader, "models/rile.obj", "models/");
 	glutMainLoop();
 
 	return 0;
