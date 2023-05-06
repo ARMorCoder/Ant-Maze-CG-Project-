@@ -23,18 +23,18 @@ Model* shelf;
 Model* tv;
 Model* smalltable;
 Model* couch;
-Model *cylinder;
-Model *theHead;
-Model *theBody;
-Model *theLeftArm;
-Model *theRightArm;
-Model *theLeftLeg;
-Model *theRightLeg;//a cylinder 
-Model *plane; //a plane
-Model *sphere;
-Model *room;
+Model* cylinder;
+Model* theHead;
+Model* theBody;
+Model* theLeftArm;
+Model* theRightArm;
+Model* theLeftLeg;
+Model* theRightLeg;//a cylinder 
+Model* plane; //a plane
+Model* sphere;
+Model* room;
 Model* playerModel;
-Model *lamp;//a sphere
+Model* lamp;//a sphere
 Model* wall;
 Model* mazes;
 Model* guns;
@@ -78,10 +78,10 @@ float player_z = 0.0f;
 float prev_player_x = 0.0f;
 float prev_player_z = 0.0f;
 /* report GL errors, if any, to stderr */
-void checkError(const char *functionName)
+void checkError(const char* functionName)
 {
 	GLenum error;
-	while (( error = glGetError() ) != GL_NO_ERROR) {
+	while ((error = glGetError()) != GL_NO_ERROR) {
 		std::cerr << "GL error " << error << " detected in " << functionName << std::endl;
 	}
 }
@@ -105,36 +105,36 @@ void initShader(void)
 	shader.AddAttribute("vertexPosition");
 	shader.AddAttribute("vertexNormal");
 
-	checkError ("initShader");
+	checkError("initShader");
 }
 
 void initRendering(void)
 {
-	glClearColor (0.5f, 0.35f, 0.05f, 0.0f); // Dodger Blue
-	checkError ("initRendering");
+	glClearColor(0.5f, 0.35f, 0.05f, 0.0f); // Dodger Blue
+	checkError("initRendering");
 }
 
-void init(void) 
-{	
+void init(void)
+{
 	// Perspective projection matrix.
-	projection = glm::perspective(45.0f, 800.0f/600.0f, 1.0f, 1000.0f);
+	projection = glm::perspective(45.0f, 800.0f / 600.0f, 1.0f, 1000.0f);
 
-	
+
 	// Load identity matrix into model matrix (no initial translation or rotation)
-	
 
-	initShader ();
-	initRendering ();
+
+	initShader();
+	initRendering();
 }
 
 /* This prints in the console when you start the program*/
 void dumpInfo(void)
 {
-	printf ("Vendor: %s\n", glGetString (GL_VENDOR));
-	printf ("Renderer: %s\n", glGetString (GL_RENDERER));
-	printf ("Version: %s\n", glGetString (GL_VERSION));
-	printf ("GLSL: %s\n", glGetString (GL_SHADING_LANGUAGE_VERSION));
-	checkError ("dumpInfo");
+	printf("Vendor: %s\n", glGetString(GL_VENDOR));
+	printf("Renderer: %s\n", glGetString(GL_RENDERER));
+	printf("Version: %s\n", glGetString(GL_VERSION));
+	printf("GLSL: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	checkError("dumpInfo");
 }
 
 float rotation = 0.0f;
@@ -157,14 +157,15 @@ void display(void)
 {
 	delta += .4;
 	//glm::rot
-	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (camToggle % 2 == 0) {
-		view = glm::lookAt(glm::vec3(cMove - (glm::rotate(cRotation, 0.f, 1.f, 0.f) * glm::rotate(vRotation, 1.0f, 0.0f, 0.0f) * lookatdirection * cameradistance) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(cMove), glm::vec3(up));
+		//view = glm::lookAt(glm::vec3(cMove - (glm::rotate(cRotation, 0.f, 1.f, 0.f) * glm::rotate(vRotation, 1.0f, 0.0f, 0.0f) * lookatdirection * cameradistance) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(cMove), glm::vec3(up));
+		view = glm::lookAt(glm::vec3(move - (glm::rotate(cRotation, 0.f, 1.f, 0.f) * lookatdirection * cameradistance) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(move), glm::vec3(up));
 	}
 	else {
 		view = glm::lookAt(glm::vec3(move - (glm::rotate(rotation, 0.f, 1.f, 0.f) * lookatdirection) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(move), glm::vec3(up));
 	}
-	headTrans = glm::translate(glm::vec3(move)) * glm::rotate(rotation, 0.f, 1.f, 0.f) * glm::translate(10.0f, 4.0f, 0.0f);
+	headTrans = glm::translate(glm::vec3(move)) * glm::rotate(rotation, 0.f, 1.f, 0.f) * glm::translate(-4.0f, -4.0f, 0.0f);
 	playerModel->render(view * headTrans/* glm::translate(-2.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
 	// sphere is a child of the cylinder
 	//sphere->render(view * glm::translate(10.0f, -5.9f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
@@ -174,10 +175,10 @@ void display(void)
 	//couch->render(view * glm::translate(-15.0f, -9.0f, -8.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
 	//tv->render(view * glm::translate(-15.0f, -6.0f, 0.0f) * glm::scale(5.0f, 5.0f, 5.0f), projection);
 	plane->render(view * glm::translate(0.0f, -5.0f, 0.0f) * glm::scale(400.0f, 1.0f, 400.0f), projection);
-	guns->render(view * headTrans* glm::translate(3.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
+	guns->render(view * headTrans * glm::translate(3.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
 	for (int row = 0; row < maze_height; row++) {
 		for (int col = 0; col < maze_width; col++) {
-			
+
 			if (maze[row][col] == 't') {
 				float x1 = row;
 				float y1 = 0.0f;
@@ -201,27 +202,27 @@ void display(void)
 					playerModel->render(view * headTrans * glm::translate(player_x, player_y, player_z)/* glm::translate(-2.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
 
 				}
-					glPushMatrix();
-					glTranslatef(maze_width, 0, maze_height);
-					cylinder->render(view * glm::translate(10.0f, 0.0f, 15.0f) * glm::translate(-(float)col * 10, 0.0f, -(float)row * 10) * glm::scale(5.0f, 5.0f, 5.0f), projection);
+				glPushMatrix();
+				glTranslatef(maze_width, 0, maze_height);
+				cylinder->render(view * glm::translate(10.0f, 0.0f, 15.0f) * glm::translate(-(float)col * 10, 0.0f, -(float)row * 10) * glm::scale(5.0f, 200.0f, 5.0f), projection);
 
-					glPopMatrix();
-				}
-			
+				glPopMatrix();
+			}
+
 			if (maze[row][col] == 'x') {
 				glPushMatrix();
 				glTranslatef(maze_width, 0, maze_height);
-				playerModel->render(view * glm::translate(13.0f, 0.0f, 15.0f) * glm::translate(-(float)col*10, -5.0f, -(float)row*10)*glm::rotate(180.0f, 0.0f, 1.0f, 0.0f), projection);
+				playerModel->render(view * glm::translate(13.0f, 0.0f, 15.0f) * glm::translate(-(float)col * 10, -5.0f, -(float)row * 10) * glm::rotate(180.0f, 0.0f, 1.0f, 0.0f), projection);
 				glPopMatrix();
 			}
 			if (maze[row][col] == 'g') {
 				glPushMatrix();
 				glTranslatef(maze_width, 0, maze_height);
-				guns->render(view  *glm::translate(10.0f, 2.0f, 15.0f) * glm::translate(-(float)col * 10, -5.0f, -(float)row * 10) * glm::rotate(delta, 0.0f, 1.0f, 0.0f), projection);
+				guns->render(view * glm::translate(10.0f, 2.0f, 15.0f) * glm::translate(-(float)col * 10, -5.0f, -(float)row * 10) * glm::rotate(delta, 0.0f, 1.0f, 0.0f), projection);
 				glPopMatrix();
 			}
 
-			
+
 		}
 
 	}
@@ -236,10 +237,10 @@ void idle()
 }
 
 /*Called when the window is resized*/
-void reshape (int w, int h)
+void reshape(int w, int h)
 {
-	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
-	checkError ("reshape");
+	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+	checkError("reshape");
 }
 
 /*Called when a normal key is pressed*/
@@ -344,23 +345,23 @@ void specialKeyBoard(int Key, int x, int y) {
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
-	glutInitDisplayMode (GLUT_DOUBLE| GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize (800, 600); 
-	glutInitWindowPosition (100, 100);
-	glutCreateWindow (argv[0]);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitWindowSize(800, 600);
+	glutInitWindowPosition(100, 100);
+	glutCreateWindow(argv[0]);
 	glewInit();
-	dumpInfo ();
-	init ();
+	dumpInfo();
+	init();
 
 
-	glutDisplayFunc(display); 
-	glutIdleFunc(idle); 
+	glutDisplayFunc(display);
+	glutIdleFunc(idle);
 	glutReshapeFunc(reshape);
-	glutKeyboardFunc (keyboard);
+	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(specialKeyBoard);
 	glEnable(GL_DEPTH_TEST);
 
-	
+
 	cylinder = new Model(&shader, "models/cylinder.obj");
 	theHead = new Model(&shader, "models/cylinder.obj");
 	theBody = new Model(&shader, "models/cylinder.obj");
