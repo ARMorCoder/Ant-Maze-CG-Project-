@@ -160,7 +160,7 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (camToggle % 2 == 0) {
 		//view = glm::lookAt(glm::vec3(cMove - (glm::rotate(cRotation, 0.f, 1.f, 0.f) * glm::rotate(vRotation, 1.0f, 0.0f, 0.0f) * lookatdirection * cameradistance) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(cMove), glm::vec3(up));
-		view = glm::lookAt(glm::vec3(move - (glm::rotate(cRotation, 0.f, 1.f, 0.f) * lookatdirection * cameradistance) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(move), glm::vec3(up));
+		view = glm::lookAt(glm::vec3(move - (glm::rotate(cRotation, 0.f, 1.f, 0.f) * lookatdirection * cameradistance) + glm::vec4(0.0f, 5.0f, 0.f, 0.f)), glm::vec3(move), glm::vec3(up));
 	}
 	else {
 		view = glm::lookAt(glm::vec3(move - (glm::rotate(rotation, 0.f, 1.f, 0.f) * lookatdirection) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(move), glm::vec3(up));
