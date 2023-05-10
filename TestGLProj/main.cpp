@@ -169,7 +169,7 @@ void display(void)
 				glPushMatrix();
 				glTranslatef(maze_width, 0, maze_height);
 				cylinder->render(view * glm::translate(10.0f, 0.0f, 15.0f) * glm::translate(-(float)col * 10, 0.0f, -(float)row * 10) * glm::scale(5.0f, 200.0f, 5.0f), projection);
-
+				//wall->render(view * glm::translate(10.0f, 0.0f, 15.0f) * glm::translate(-(float)col * 10, 0.0f, -(float)row * 10) * glm::scale(1.0f, 1.0f, 1.0f), projection);
 				glPopMatrix();
 			}
 
