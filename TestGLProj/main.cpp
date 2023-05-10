@@ -112,7 +112,7 @@ float verticalrotation = 0.0f;
 //glm::vec4 cMove(0.0f, 0.0f, 15.0f, 1.0f);
 float vRotation = 0.0f;
 float cRotation = 0.0f;
-float cameradistance = 10;
+float cameradistance = 20;
 /*This gets called when the OpenGL is asked to display. This is where all the main rendering calls go*/
 void draw_wall(float x, float y, float z) {
 	glPushMatrix();
@@ -127,13 +127,15 @@ void display(void)
 	delta += .4;
 	//glm::rot
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	if (camToggle % 2 == 0) {
-		//view = glm::lookAt(glm::vec3(cMove - (glm::rotate(cRotation, 0.f, 1.f, 0.f) * glm::rotate(vRotation, 1.0f, 0.0f, 0.0f) * lookatdirection * cameradistance) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(cMove), glm::vec3(up));
-		view = glm::lookAt(glm::vec3(move - (glm::rotate(cRotation, 0.f, 1.f, 0.f) * lookatdirection * cameradistance) + glm::vec4(0.0f, 5.0f, 0.f, 0.f)), glm::vec3(move), glm::vec3(up));
+		view = glm::lookAt(glm::vec3(move - (glm::rotate(rotation, 0.f, 1.f, 0.f) * lookatdirection * cameradistance) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(move), glm::vec3(up));
 	}
+
 	else {
-		view = glm::lookAt(glm::vec3(move - (glm::rotate(rotation, 0.f, 1.f, 0.f) * lookatdirection) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(move), glm::vec3(up));
+		view = glm::lookAt(glm::vec3(move - (glm::rotate(cRotation, 0.f, 1.f, 0.f) * lookatdirection * cameradistance) + glm::vec4(0.0f, 0.0f, 0.f, 0.f)), glm::vec3(move), glm::vec3(up));
 	}
+
 	headTrans = glm::translate(glm::vec3(move)) * glm::rotate(rotation, 0.f, 1.f, 0.f) * glm::translate(-4.0f, -4.0f, 0.0f);
 	playerModel->render(view * headTrans/* glm::translate(-2.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
 	plane->render(view * glm::translate(0.0f, -5.0f, 0.0f) * glm::scale(400.0f, 1.0f, 400.0f), projection);
