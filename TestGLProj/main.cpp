@@ -26,6 +26,7 @@ Model* playerModel;
 Model* wall;
 Model* mazes;
 Model* guns;
+Model* enemy;
 glm::mat4 projection; // projection matrix
 glm::mat4 view;
 glm::mat4 headTrans;
@@ -112,7 +113,7 @@ float verticalrotation = 0.0f;
 //glm::vec4 cMove(0.0f, 0.0f, 15.0f, 1.0f);
 float vRotation = 0.0f;
 float cRotation = 0.0f;
-float cameradistance = 20;
+float cameradistance = 15;
 /*This gets called when the OpenGL is asked to display. This is where all the main rendering calls go*/
 void draw_wall(float x, float y, float z) {
 	glPushMatrix();
@@ -139,7 +140,8 @@ void display(void)
 	headTrans = glm::translate(glm::vec3(move)) * glm::rotate(rotation, 0.f, 1.f, 0.f) * glm::translate(-4.0f, -4.0f, 0.0f);
 	playerModel->render(view * headTrans/* glm::translate(-2.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
 	plane->render(view * glm::translate(0.0f, -5.0f, 0.0f) * glm::scale(400.0f, 1.0f, 400.0f), projection);
-	guns->render(view * headTrans * glm::translate(3.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
+	//guns->render(view * headTrans * glm::translate(3.0f, -2.0f, -2.0f) /*glm::scale(5.0f, 5.0f, 5.0f)*/, projection);
+	//enemy->render(view * glm::translate(3.0f, 2.0f, 2.0f) * glm::scale(500.0f, 500.0f, 500.0f), projection);
 	for (int row = 0; row < maze_height; row++) {
 		for (int col = 0; col < maze_width; col++) {
 
@@ -177,6 +179,7 @@ void display(void)
 				glPushMatrix();
 				glTranslatef(maze_width, 0, maze_height);
 				playerModel->render(view * glm::translate(13.0f, 0.0f, 15.0f) * glm::translate(-(float)col * 10, -5.0f, -(float)row * 10) * glm::rotate(180.0f, 0.0f, 1.0f, 0.0f), projection);
+				//enemy->render(view * glm::translate(13.0f, 0.0f, 15.0f) * glm::translate(-(float)col * 10, -5.0f, -(float)row * 10) * glm::rotate(180.0f, 0.0f, 1.0f, 0.0f), projection);
 				glPopMatrix();
 			}
 			if (maze[row][col] == 'g') {
@@ -331,6 +334,7 @@ int main(int argc, char** argv)
 	wall = new Model(&shader, "models/wall.obj", "models/");
 	mazes = new Model(&shader, "models/AntFarm.obj", "models/");
 	guns = new Model(&shader, "models/rile.obj", "models/");
+	enemy = new Model(&shader, "models/spider.obj", "models/");
 	glutMainLoop();
 
 	return 0;
